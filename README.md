@@ -190,8 +190,8 @@ py s1.cmd("ovs-ofctl -O openflow13 dump-flows s1")
 ```
 
 ```zsh
-cookie=0x0, duration=291.803s, table=0, n_packets=28, n_bytes=3472, idle_timeout=90, send_flow_rem priority=65535,in_port="s1eth1",dl_src=00:00:00:00:00:11,dl_type=0x8809 actions=CONTROLLER:65509
-cookie=0x0, duration=291.791s, table=0, n_packets=28, n_bytes=3472, idle_timeout=90, send_flow_rem priority=65535,in_port="s1eth2",dl_src=00:00:00:00:00:12,dl_type=0x8809 actions=CONTROLLER:65509
+cookie=0x0, duration=291.803s, table=0, n_packets=28, n_bytes=3472, idle_timeout=90, send_flow_rem priority=65535,in_port="s1-eth1",dl_src=00:00:00:00:00:11,dl_type=0x8809 actions=CONTROLLER:65509
+cookie=0x0, duration=291.791s, table=0, n_packets=28, n_bytes=3472, idle_timeout=90, send_flow_rem priority=65535,in_port="s1-eth2",dl_src=00:00:00:00:00:12,dl_type=0x8809 actions=CONTROLLER:65509
 cookie=0x0, duration=303.608s, table=0, n_packets=6, n_bytes=528, priority=0 actions=CONTROLLER:65535
 ```
 
@@ -232,16 +232,55 @@ py s1.cmd("ovs-ofctl -O openflow13 dump-flows s1")
 ```
 
 ```zsh
-cookie=0x0, duration=71029.586s, table=0, n_packets=2295, n_bytes=284580, idle_timeout=90, send_flow_rem priority=65535,in_port="s1eth1",dl_src=00:00:00:00:00:11,dl_type=0x8809 actions=CONTROLLER:65509
-cookie=0x0, duration=71029.574s, table=0, n_packets=2295, n_bytes=284580, idle_timeout=90, send_flow_rem priority=65535,in_port="s1eth2",dl_src=00:00:00:00:00:12,dl_type=0x8809 actions=CONTROLLER:65509
+cookie=0x0, duration=71029.586s, table=0, n_packets=2295, n_bytes=284580, idle_timeout=90, send_flow_rem priority=65535,in_port="s1-eth1",dl_src=00:00:00:00:00:11,dl_type=0x8809 actions=CONTROLLER:65509
+cookie=0x0, duration=71029.574s, table=0, n_packets=2295, n_bytes=284580, idle_timeout=90, send_flow_rem priority=65535,in_port="s1-eth2",dl_src=00:00:00:00:00:12,dl_type=0x8809 actions=CONTROLLER:65509
 cookie=0x0, duration=69963.229s, table=0, n_packets=19, n_bytes=1694, priority=1,in_port="s1-eth1",dl_dst=00:00:00:00:00:22 actions=output:"s1-eth3"
 cookie=0x0, duration=69963.226s, table=0, n_packets=18, n_bytes=1596, priority=1,in_port="s1-eth3",dl_dst=02:01:02:03:04:08 actions=output:"s1-eth1"
 cookie=0x0, duration=71041.391s, table=0, n_packets=87, n_bytes=6142, priority=0 actions=CONTROLLER:65535
 ```
 
+After the previous check point, two flow entries have been added. They are the 4th and 5th entries with a small duration value.
+
+The respective flow entry is as follows:
+
+When a packet address to bond0 of h1 is received from the 3rd port (s1-eth3, that is, the counterpart interface of h2), it is output from the first port (s1-eth1).
+When a packet addressed to h2 is received from the 1st port (s1-eth1), it is output from the 3rd port (s1-eth3).
+You can tell that s1-eth1 is used for communication between h2 and h1.
+
+Next, execute ping from host h3 to host h1.
+
+Node: h3:
+
 ```zsh
-py h2.cmd("ping 10.0.0.1 -c4")
+py h3.cmd("ping 10.0.0.1 -c4")
 ```
+
+```zsh
+...
+64 bytes from 10.0.0.1: icmp_seq=1 ttl=64 time=27.7 ms
+64 bytes from 10.0.0.1: icmp_seq=2 ttl=64 time=0.421 ms
+64 bytes from 10.0.0.1: icmp_seq=3 ttl=64 time=0.132 ms
+64 bytes from 10.0.0.1: icmp_seq=4 ttl=64 time=0.045 ms
+...
+```
+
+While continuing to send pings, check the flow entry of switch s1.
+
+Node: s1:
+```zsh
+py s1.cmd("ovs-ofctl -O openflow13 dump-flows s1")
+```
+
+```zsh
+cookie=0x0, duration=71384.263s, table=0, n_packets=2306, n_bytes=285944, idle_timeout=90, send_flow_rem priority=65535,in_port="s1-eth1",dl_src=00:00:00:00:00:11,dl_type=0x8809 actions=CONTROLLER:65509
+cookie=0x0, duration=71384.251s, table=0, n_packets=2306, n_bytes=285944, idle_timeout=90, send_flow_rem priority=65535,in_port="s1-eth2",dl_src=00:00:00:00:00:12,dl_type=0x8809 actions=CONTROLLER:65509
+cookie=0x0, duration=70317.906s, table=0, n_packets=19, n_bytes=1694, priority=1,in_port="s1-eth1",dl_dst=00:00:00:00:00:22 actions=output:"s1-eth3"
+cookie=0x0, duration=70317.903s, table=0, n_packets=18, n_bytes=1596, priority=1,in_port="s1-eth3",dl_dst=02:01:02:03:04:08 actions=output:"s1-eth1"
+cookie=0x0, duration=43.380s, table=0, n_packets=5, n_bytes=434, priority=1,in_port="s1-eth2",dl_dst=00:00:00:00:00:23 actions=output:"s1-eth4"
+cookie=0x0, duration=43.376s, table=0, n_packets=4, n_bytes=336, priority=1,in_port="s1-eth4",dl_dst=02:01:02:03:04:08 actions=output:"s1-eth2"
+cookie=0x0, duration=71396.068s, table=0, n_packets=91, n_bytes=6366, priority=0 actions=CONTROLLER:65535
+```
+
 
 
 ## References
