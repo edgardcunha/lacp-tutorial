@@ -197,8 +197,8 @@ cookie=0x0, duration=303.608s, table=0, n_packets=6, n_bytes=528, priority=0 act
 
 In the switch,
 
-* The Packet-In message is sent when the LACP data unit (ethertype is 0x8809) is sent from h1’s h1-eth1 (the input port is s1-eth2 and the MAC address is 00:00:00:00:00:12).
-* The Packet-In message is sent when the LACP data unit (ethertype is 0x8809) is sent from h1’s h1-eth0 (the input port is s1-eth1 and the MAC address is 00:00:00:00:00:11)
+* The Packet-In message is sent when the LACP data unit (ethertype is 0x8809) is sent from h1's h1-eth1 (the input port is s1-eth2 and the MAC address is 00:00:00:00:00:12).
+* The Packet-In message is sent when the LACP data unit (ethertype is 0x8809) is sent from h1's h1-eth0 (the input port is s1-eth1 and the MAC address is 00:00:00:00:00:11)
 * The same Table-miss flow entry as that of "Switching Hub".
 
 The above three flow entries have been registered.
@@ -206,6 +206,23 @@ The above three flow entries have been registered.
 ### Checking the Link Aggregation Function
 
 #### Improving Communication Speed
+First of all, check improvement in the communication speed as a result of link aggregation. Let's take a look at the ways of using different links depending on communication.
+
+First, execute ping from host h2 to host h1.
+
+Node: h2:
+```zsh
+py h2.cmd("ping 10.0.0.1 -c4")
+```
+
+```zsh
+...
+64 bytes from 10.0.0.1: icmp_seq=1 ttl=64 time=0.525 ms
+64 bytes from 10.0.0.1: icmp_seq=2 ttl=64 time=0.167 ms
+64 bytes from 10.0.0.1: icmp_seq=3 ttl=64 time=0.127 ms
+64 bytes from 10.0.0.1: icmp_seq=4 ttl=64 time=0.169 ms
+...
+```
 
 ## References
 [Ryu-Book - Link Aggregation](https://osrg.github.io/ryu-book/en/html/link_aggregation.html)
