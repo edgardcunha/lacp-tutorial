@@ -196,10 +196,9 @@ cookie=0x0, duration=303.608s, table=0, n_packets=6, n_bytes=528, priority=0 act
 ```
 
 In the switch,
-
-⋅⋅*The Packet-In message is sent when the LACP data unit (ethertype is 0x8809) is sent from h1’s h1-eth1 (the input port is s1-eth2 and the MAC address is 00:00:00:00:00:12).
-⋅⋅*The Packet-In message is sent when the LACP data unit (ethertype is 0x8809) is sent from h1’s h1-eth0 (the input port is s1-eth1 and the MAC address is 00:00:00:00:00:11)
-⋅⋅*The same Table-miss flow entry as that of "Switching Hub".
+*The Packet-In message is sent when the LACP data unit (ethertype is 0x8809) is sent from h1’s h1-eth1 (the input port is s1-eth2 and the MAC address is 00:00:00:00:00:12).
+*The Packet-In message is sent when the LACP data unit (ethertype is 0x8809) is sent from h1’s h1-eth0 (the input port is s1-eth1 and the MAC address is 00:00:00:00:00:11)
+*The same Table-miss flow entry as that of "Switching Hub".
 The above three flow entries have been registered.
 
 
