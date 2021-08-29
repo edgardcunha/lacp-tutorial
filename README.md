@@ -195,5 +195,13 @@ cookie=0x0, duration=291.791s, table=0, n_packets=28, n_bytes=3472, idle_timeout
 cookie=0x0, duration=303.608s, table=0, n_packets=6, n_bytes=528, priority=0 actions=CONTROLLER:65535
 ```
 
+In the switch,
+
+⋅⋅*The Packet-In message is sent when the LACP data unit (ethertype is 0x8809) is sent from h1’s h1-eth1 (the input port is s1-eth2 and the MAC address is 00:00:00:00:00:12).
+⋅⋅*The Packet-In message is sent when the LACP data unit (ethertype is 0x8809) is sent from h1’s h1-eth0 (the input port is s1-eth1 and the MAC address is 00:00:00:00:00:11)
+⋅⋅*The same Table-miss flow entry as that of "Switching Hub".
+The above three flow entries have been registered.
+
+
 ## References
 [Ryu-Book - Link Aggregation](https://osrg.github.io/ryu-book/en/html/link_aggregation.html)
