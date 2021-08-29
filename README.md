@@ -154,12 +154,35 @@ details partner lacp pdu:
     port state: 1
 ```
 
-###Setting OpenFlow Version
+##Setting OpenFlow Version
+
 Set the OpenFlow version of switch s1 to 1.3. Input this command on xterm of switch s1.
 
 ```zsh
-py s1.cmd(“ovs-vsctl set Bridge s1 protocols=OpenFlow13”)
+py s1.cmd("ovs-vsctl set Bridge s1 protocols=OpenFlow13")
 ```
+
+Executing the Switching Hub
+```zsh
+py c0.cmd("ryu-manager lacp/ryu.app.simple_switch_lacp_13")
+```
+
+```zsh
+...
+[LACP][INFO] SW=0000000000000001 PORT=1 LACP received.
+[LACP][INFO] SW=0000000000000001 PORT=1 the slave i/f has just been up.
+[LACP][INFO] SW=0000000000000001 PORT=1 the timeout time has changed.
+[LACP][INFO] SW=0000000000000001 PORT=1 LACP sent.
+slave state changed port: 1 enabled: True
+[LACP][INFO] SW=0000000000000001 PORT=2 LACP received.
+[LACP][INFO] SW=0000000000000001 PORT=2 the slave i/f has just been up.
+[LACP][INFO] SW=0000000000000001 PORT=2 the timeout time has changed.
+[LACP][INFO] SW=0000000000000001 PORT=2 LACP sent.
+slave state changed port: 2 enabled: True
+...
+```
+
+
 
 ## References
 [Ryu-Book - Link Aggregation](https://osrg.github.io/ryu-book/en/html/link_aggregation.html)
