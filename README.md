@@ -154,6 +154,12 @@ details partner lacp pdu:
     port state: 1
 ```
 
+###Setting OpenFlow Version
+Set the OpenFlow version of switch s1 to 1.3. Input this command on xterm of switch s1.
+
+```zsh
+py s1.cmd(“ovs-vsctl set Bridge s1 protocols=OpenFlow13”)
+```
 
 ## References
 [Ryu-Book - Link Aggregation](https://osrg.github.io/ryu-book/en/html/link_aggregation.html)
