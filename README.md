@@ -224,5 +224,25 @@ py h2.cmd("ping 10.0.0.1 -c4")
 ...
 ```
 
+While continuing to send pings, check the flow entry of switch s1.
+
+Node: s1:
+```zsh
+py s1.cmd("ovs-ofctl -O openflow13 dump-flows s1")
+```
+
+```zsh
+cookie=0x0, duration=71029.586s, table=0, n_packets=2295, n_bytes=284580, idle_timeout=90, send_flow_rem priority=65535,in_port="s1eth1",dl_src=00:00:00:00:00:11,dl_type=0x8809 actions=CONTROLLER:65509
+cookie=0x0, duration=71029.574s, table=0, n_packets=2295, n_bytes=284580, idle_timeout=90, send_flow_rem priority=65535,in_port="s1eth2",dl_src=00:00:00:00:00:12,dl_type=0x8809 actions=CONTROLLER:65509
+cookie=0x0, duration=69963.229s, table=0, n_packets=19, n_bytes=1694, priority=1,in_port="s1-eth1",dl_dst=00:00:00:00:00:22 actions=output:"s1-eth3"
+cookie=0x0, duration=69963.226s, table=0, n_packets=18, n_bytes=1596, priority=1,in_port="s1-eth3",dl_dst=02:01:02:03:04:08 actions=output:"s1-eth1"
+cookie=0x0, duration=71041.391s, table=0, n_packets=87, n_bytes=6142, priority=0 actions=CONTROLLER:65535
+```
+
+```zsh
+py h2.cmd("ping 10.0.0.1 -c4")
+```
+
+
 ## References
 [Ryu-Book - Link Aggregation](https://osrg.github.io/ryu-book/en/html/link_aggregation.html)
