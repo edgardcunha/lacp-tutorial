@@ -190,8 +190,8 @@ py s1.cmd("ovs-ofctl -O openflow13 dump-flows s1")
 ```
 
 ```zsh
-cookie=0x0, duration=291.803s, table=0, n_packets=28, n_bytes=3472, idle_timeout=90, send_flow_rem priority=65535,in_port="s1-eth1",dl_src=00:00:00:00:00:11,dl_type=0x8809 actions=CONTROLLER:65509
-cookie=0x0, duration=291.791s, table=0, n_packets=28, n_bytes=3472, idle_timeout=90, send_flow_rem priority=65535,in_port="s1-eth2",dl_src=00:00:00:00:00:12,dl_type=0x8809 actions=CONTROLLER:65509
+>cookie=0x0, duration=291.803s, table=0, n_packets=28, n_bytes=3472, idle_timeout=90, send_flow_rem priority=65535,in_port="s1-eth1",dl_src=00:00:00:00:00:11,dl_type=0x8809 actions=CONTROLLER:65509```
+>cookie=0x0, duration=291.791s, table=0, n_packets=28, n_bytes=3472, idle_timeout=90, send_flow_rem priority=65535,in_port="s1-eth2",dl_src=00:00:00:00:00:12,dl_type=0x8809 actions=CONTROLLER:65509
 cookie=0x0, duration=303.608s, table=0, n_packets=6, n_bytes=528, priority=0 actions=CONTROLLER:65535
 ```
 
