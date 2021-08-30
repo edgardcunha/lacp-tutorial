@@ -359,13 +359,49 @@ With a link aggregation using LACP, the behavior is like this: “While LACP dat
 * Create and send a response when an LACP data unit is received.
 * If an LACP data unit cannot be received for a certain period of time, the flow entry that uses the physical interface and after that flow entries that use the interface are not registered.
 * If an LACP data unit is received by the disabled physical interface, said interface is enabled again.
-* Packets other than the LACP data unit are learned and transferred, as with ” Switching Hub”.
+* Packets other than the LACP data unit are learned and transferred, as with [Switching Hub](https://osrg.github.io/ryu-book/en/html/switching_hub.html#ch-switching-hub).
 
 ...basic operation of link aggregation becomes possible. Because the part related to LACP and the part not related to LACP are clearly separated, you can implement by cutting out the part related to LACP as an LACP library and extending the switching hub of “Switching Hub” for the part not related to LACP.
 
 Because creation and sending of responses after an LACP data unit is received cannot be achieved only by flow entries, we use the Packet-In message for processing at the OpenFlow controller side.
 
+```
+*Note:* Physical interfaces that exchange LACP data units are classified as ACTIVE and PASSIVE, depending on their role. ACTIVE sends LACP data units at specified intervals to actively check communication. PASSIVE passively checks communication by returning a response after receiving the LACP data unit sent from ACTIVE.
+Ryu’s link aggregation application implements only the PASSIVE mode.
+```
 
+If no LACP data unit is received for a predetermined period of time, the physical interface is disabled. Because of this processing, by setting idle_timeout for the flow entry that performs Packet-In of the LACP data unit, when timeout occurs, by sending the FlowRemoved message, it is possible for the OpenFlow controller to handle it when the interface is disabled.
+
+Processing when the exchange of LACP data units is resumed with the disabled interface is achieved by the handler of the Packet-In message to determine and change the enable/disable state of the interface upon receiving a LACP data unit.
+
+When the physical interface is disabled, as OpenFlow controller processing, it looks OK to simply "delete the flow entry that uses the interface" but it is not sufficient to do so.
+
+For example, assume there is a logical interface using a group of three physical interfaces and the sort logic is "Surplus of MAC address by the number of enabled interfaces".
+
+Interface 1 | Interface 2 | Interface 3
+--- | --- | ---
+Surplus of MAC address:0 | Surplus of MAC address:1 | Surplus of MAC address:2
+
+Then, assume that flow entry that uses each physical interface has been registered for three entries, each.
+
+Interface 1 | Interface 2 | Interface 3
+--- | --- | ---
+Address:00:00:00:00:00:00 | Address:00:00:00:00:00:01 | Address:00:00:00:00:00:02
+Address:00:00:00:00:00:03 | Address:00:00:00:00:00:04 | Address:00:00:00:00:00:05
+Address:00:00:00:00:00:06 | Address:00:00:00:00:00:07 | Address:00:00:00:00:00:08
+
+Here, if interface 1 is disabled, according to the sort logic "Surplus of MAC address by the number of enabled interfaces", it must be sorted as follows:
+
+Interface 1 | Interface 2 | Interface 3
+--- | --- | ---
+Disabled | Surplus of MAC address:0 | Surplus of MAC address:1
+Interface 1 | Interface 2 | Interface 3
+--- | --- | ---
+ | Address:00:00:00:00:00:00 | Address:00:00:00:00:00:01
+ | Address:00:00:00:00:00:02 | Address:00:00:00:00:00:03
+ | Address:00:00:00:00:00:04 | Address:00:00:00:00:00:05
+ | Address:00:00:00:00:00:06 | Address:00:00:00:00:00:07
+ | Address:00:00:00:00:00:08
 
 ## References
 [Ryu-Book - Link Aggregation](https://osrg.github.io/ryu-book/en/html/link_aggregation.html)
