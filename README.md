@@ -189,9 +189,9 @@ Node: s1:
 py s1.cmd("ovs-ofctl -O openflow13 dump-flows s1")
 ```
 
-```zsh
->cookie=0x0, duration=291.803s, table=0, n_packets=28, n_bytes=3472, idle_timeout=90, send_flow_rem priority=65535,in_port="s1-eth1",dl_src=00:00:00:00:00:11,dl_type=0x8809 actions=CONTROLLER:65509```
->cookie=0x0, duration=291.791s, table=0, n_packets=28, n_bytes=3472, idle_timeout=90, send_flow_rem priority=65535,in_port="s1-eth2",dl_src=00:00:00:00:00:12,dl_type=0x8809 actions=CONTROLLER:65509
+```zsh{.line-numbers}
+cookie=0x0, duration=291.803s, table=0, n_packets=28, n_bytes=3472, idle_timeout=90, send_flow_rem priority=65535,in_port="s1-eth1",dl_src=00:00:00:00:00:11,dl_type=0x8809 actions=CONTROLLER:65509```
+cookie=0x0, duration=291.791s, table=0, n_packets=28, n_bytes=3472, idle_timeout=90, send_flow_rem priority=65535,in_port="s1-eth2",dl_src=00:00:00:00:00:12,dl_type=0x8809 actions=CONTROLLER:65509
 cookie=0x0, duration=303.608s, table=0, n_packets=6, n_bytes=528, priority=0 actions=CONTROLLER:65535
 ```
 
@@ -280,6 +280,21 @@ cookie=0x0, duration=43.380s, table=0, n_packets=5, n_bytes=434, priority=1,in_p
 cookie=0x0, duration=43.376s, table=0, n_packets=4, n_bytes=336, priority=1,in_port="s1-eth4",dl_dst=02:01:02:03:04:08 actions=output:"s1-eth2"
 cookie=0x0, duration=71396.068s, table=0, n_packets=91, n_bytes=6366, priority=0 actions=CONTROLLER:65535
 ```
+
+After the previous check point, two flow entries have been added. They are the 5th and 6th entries with a small duration value.
+
+The respective flow entry is as follows:
+
+When a packet addressed to h3 is received from the 2nd port (s1-eth2), it is output from the 4th port (s1-eth4).
+When a packet address to bond0 of h1 is received from the 4th port (s1-eth4, that is, the counterpart interface of h3), it is output from the 2nd port (s1-eth2).
+You can tell that s1-eth2 is used for communication between h3 and h1.
+
+As a matter of course, ping can be executed from host H4 to host h1 as well. As before, new flow entries are registered and s1-eth1 is used for communication between h4 and h1.
+
+Destination host	Port used
+h2			1
+h3			2
+h4			1
 
 
 
