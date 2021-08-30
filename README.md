@@ -427,11 +427,11 @@ ryu/lib/lacplib.py
 
 ryu/app/simple_switch_lacp_13.py
 
-*** Implementing the LACP Library
+### Implementing the LACP Library
 
 In the following section, we take a look at how the aforementioned functions are implemented in the LACP library. The quoted sources are excerpts. For the entire picture, refer to the actual source.
 
-**** Creating a Logical Interface
+#### Creating a Logical Interface
 
 In order to use the link aggregation function, it is necessary to configure beforehand the respective network devices as to which interfaces are aggregated as one group. The LACP library uses the following method to configure this setting.
 
@@ -472,7 +472,7 @@ By calling this method, the LACP library assumes ports specified by the OpenFlow
 
 *Tip:* Some OpenFlow switches provide a link aggregation function as thje switches’ own function (Open vSwitch, etc.). Here, we don't use such functions unique to the switch and instead implement the link aggregation function through control by the OpenFlow controller.
 
-**** Packet-In Processing
+#### Packet-In Processing
 Switching Hub performs flooding on the received packet when the destination MAC address has not been learned. LACP data units should only be exchanged between adjacent network devices and if transferred to another device the link aggregation function does not operate correctly. Therefore, operation is that if a packet received by Packet-In is an LACP data unit, it is snatched and if the packet is not a LACP data unit, it is left up to the operation of the switching hub. In this operation LACP data units are not shown to the switching hub.
 
 ```python
@@ -488,6 +488,36 @@ def packet_in_handler(self, evt):
     else:
         self.send_event_to_observers(EventPacketIn(evt.msg))
 ```
+
+The event handler itself is the same as “Switching Hub”. Processing is branched depending on whether or not the LACP data unit is included in the received massage.
+
+When the LACP data unit is included, the LACP library’s LACP data unit receive processing is performed. If the LACP data unit is not included, a method named send_event_to_observers() is called. This method is used to send an event defined in the ryu.base.app_manager.RyuApp class.
+
+In Switching Hub, we mentioned the OpenFlow message receive event defined in Ryu, but users can define their own event. The event called EventPacketIn, which is sent in the above source, is a user-defined event created in the LACP library.
+
+```python
+class EventPacketIn(event.EventBase):
+    """a PacketIn event class using except LACP."""
+    def __init__(self, msg):
+        """initialization."""
+        super(EventPacketIn, self).__init__()
+        self.msg = msg
+```
+
+User-defined events are created by inheriting the ryu.controller.event.EventBase class. There is no limit on data enclosed in the event class. In the EventPacketIn class, the ryu.ofproto.OFPPacketIn instance received by the Packet-In message is used as is.
+
+The method of receiving user-defined events is explained in a later section.
+
+#### Processing Accompanying Port Enable/Disable State Change
+
+The LACP data unit reception processing of the LACP library consists of the following processing.
+
+If the port that received an LACP data unit is in disabled state, it is changed to enabled state and the state change is notified by the event.
+When the waiting time of the no communication timeout was changed, a flow entry to send Packet-In is re-registered when the LACP data unit is received.
+Creates and sends a response for the received LACP data unit.
+The processing of 2 above is explained in Registering Flow Entry Sending Packet-In of an LACP Data Unit in a later section and the processing of 3 above is explained in Send/Receive Processing for LACP DATA Unit in a later section, respectively. In this section, we explain the processing of 1 above.
+
+
 
 ## References
 [Ryu-Book - Link Aggregation](https://osrg.github.io/ryu-book/en/html/link_aggregation.html)
