@@ -755,6 +755,75 @@ Parameter | Value | Explanation
 dpid | str_to_dpid(‘0000000000000001’) | Data path ID
 ports | [1, 2] | List of port to be grouped
 
+With this setting, port 1 and port 2 of the OpenFlow switch of data path ID `0000000000000001` operate as one link aggregation group.
+
+```python
+def __init__(self, *args, **kwargs):
+# ...
+    self._lacp = kwargs['lacplib']
+    self._lacp.add(
+        dpid=str_to_dpid('0000000000000001'), ports=[1, 2])
+```
+
+### Receiving User-defined Events
+
+As explained in Implementing the LACP Library, the LACP library sends a Packet-In message that does not contain the LACP data unit as a user-defined event called EventPacketIn. The event handler of the user-defined event uses the ryu.controller.handler.set_ev_cls decorator to decorate, as with the event handler provided by Ryu.
+
+```python
+@set_ev_cls(lacplib.EventPacketIn, MAIN_DISPATCHER)
+def _packet_in_handler(self, ev):
+    msg = ev.msg
+    datapath = msg.datapath
+    ofproto = datapath.ofproto
+    parser = datapath.ofproto_parser
+    in_port = msg.match['in_port']
+
+# ...
+```
+
+Also, when the enable/disable condition of a port is changed, the LACP library sends an EventSlaveStateChanged event, therefore, create an event handler for this as well.
+
+```python
+@set_ev_cls(lacplib.EventSlaveStateChanged, MAIN_DISPATCHER)
+def _slave_state_changed_handler(self, ev):
+    datapath = ev.datapath
+    dpid = datapath.id
+    port_no = ev.port
+    enabled = ev.enabled
+    self.logger.info("slave state changed port: %d enabled: %s",
+                     port_no, enabled)
+    if dpid in self.mac_to_port:
+        for mac in self.mac_to_port[dpid]:
+            match = datapath.ofproto_parser.OFPMatch(eth_dst=mac)
+            self.del_flow(datapath, match)
+        del self.mac_to_port[dpid]
+    self.mac_to_port.setdefault(dpid, {})
+```
+
+As explained at the beginning of this document, when the enable/disable state of a port is changed, the actual physical interface used by the packet that passes through the logical interface may be changed. For that reason, all registered flow entries are deleted.
+
+```python
+def del_flow(self, datapath, match):
+    ofproto = datapath.ofproto
+    parser = datapath.ofproto_parser
+
+    mod = parser.OFPFlowMod(datapath=datapath,
+                            command=ofproto.OFPFC_DELETE,
+                            out_port=ofproto.OFPP_ANY,
+                            out_group=ofproto.OFPG_ANY,
+                            match=match)
+    datapath.send_msg(mod)
+```
+
+Flow entries are deleted by the instance of the `OFPFlowMod` class.
+
+As explained above, a switching hub application having an link aggregation function is achieved by a library that provides the link aggregation function and applications that use the library.
+
+## Conclusion
+This section uses the link aggregation library as material to explain the following items:
+
+* How to use the library using `_CONTEXTS`
+* Method of defining user-defined events and method of raising event triggers
 
 ## References
 [Ryu-Book - Link Aggregation](https://osrg.github.io/ryu-book/en/html/link_aggregation.html)
