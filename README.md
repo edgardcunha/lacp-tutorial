@@ -291,12 +291,23 @@ You can tell that s1-eth2 is used for communication between h3 and h1.
 
 As a matter of course, ping can be executed from host H4 to host h1 as well. As before, new flow entries are registered and s1-eth1 is used for communication between h4 and h1.
 
-Destination host	Port used
-h2			1
-h3			2
-h4			1
+Destination host | Port used
+h2 | 1
+h3 | 2
+h4 | 1
 
+As shown above, we were able to confirm use of different links depending on communication.
 
+### Improving Fault Tolerance
+
+Check improvement in fault tolerance as a result of link aggregation. The current state is that when h2 and h4 communicate with h1, `s1-eth2` is used and when h3 communicates with h1, s1-eth1 is used.
+
+Here, we separate h1-eth0, which is the counterpart interface of `s1-eth1`, from the link aggregation group.
+
+Node: h1:
+```zsh
+py s1.cmd("ip link set h1-eth0 nomaster")
+```
 
 ## References
 [Ryu-Book - Link Aggregation](https://osrg.github.io/ryu-book/en/html/link_aggregation.html)
