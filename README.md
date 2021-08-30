@@ -517,6 +517,131 @@ When the waiting time of the no communication timeout was changed, a flow entry 
 Creates and sends a response for the received LACP data unit.
 The processing of 2 above is explained in Registering Flow Entry Sending Packet-In of an LACP Data Unit in a later section and the processing of 3 above is explained in Send/Receive Processing for LACP DATA Unit in a later section, respectively. In this section, we explain the processing of 1 above.
 
+```python
+def _do_lacp(self, req_lacp, src, msg):
+# ...
+
+    # when LACP arrived at disabled port, update the status of
+    # the slave i/f to enabled, and send a event.
+    if not self._get_slave_enabled(dpid, port):
+        self.logger.info(
+            "SW=%s PORT=%d the slave i/f has just been up.",
+            dpid_to_str(dpid), port)
+        self._set_slave_enabled(dpid, port, True)
+        self.send_event_to_observers(
+            EventSlaveStateChanged(datapath, port, True))
+
+# ...
+```
+
+The `_get_slave_enabled()` method acquires information as to whether or not the port specified by the specified switch is enabled. The `_set_slave_enabled()` method sets the enable/disable state of the port specified by the specified switch.
+
+In the above source, when an LACP data unit is received by a port in the disabled state, the user-defined event called EventSlaveStateChanged is sent, which indicates that the port state has been changed.
+
+```python
+class EventSlaveStateChanged(event.EventBase):
+    """a event class that notifies the changes of the statuses of the
+    slave i/fs."""
+    def __init__(self, datapath, port, enabled):
+        """initialization."""
+        super(EventSlaveStateChanged, self).__init__()
+        self.datapath = datapath
+        self.port = port
+        self.enabled = enabled
+```
+
+Other than when a port is enabled, the EventSlaveStateChanged event is also sent when a port is disabled. Processing when disabled is implemented in “Receive Processing of FlowRemoved Message”.
+
+The EventSlaveStateChanged class includes the following information:
+
+OpenFlow switch where port enable/disable state has been changed
+Port number where port enable/disable state has been changed
+State after the change
+
+#### Registering Flow Entry Sending Packet-In of an LACP Data Unit
+
+For exchange intervals of LACP data units, two types have been defined, FAST (every 1 second) and SLOW (every 30 seconds). In the link aggregation specifications, if no communication status continues for three times the exchange interval, the interface is removed from the link aggregation group and is no longer used for packet transfer.
+
+The LACP library monitors no communication by setting three times the exchange interval (SHORT_TIMEOUT_TIME is 3 seconds, and LONG_TIMEOUT_TIME is 90 seconds) as idle_timeout for the flow entry sending Packet-In when an LACP data unit is received.
+
+If the exchange interval was changed, it is necessary to re-set the idle_timeout time, which the LACP library implements as follows:
+
+```python
+def _do_lacp(self, req_lacp, src, msg):
+# ...
+
+    # set the idle_timeout time using the actor state of the
+    # received packet.
+    if req_lacp.LACP_STATE_SHORT_TIMEOUT == \
+       req_lacp.actor_state_timeout:
+        idle_timeout = req_lacp.SHORT_TIMEOUT_TIME
+    else:
+        idle_timeout = req_lacp.LONG_TIMEOUT_TIME
+
+    # when the timeout time has changed, update the timeout time of
+    # the slave i/f and re-enter a flow entry for the packet from
+    # the slave i/f with idle_timeout.
+    if idle_timeout != self._get_slave_timeout(dpid, port):
+        self.logger.info(
+            "SW=%s PORT=%d the timeout time has changed.",
+            dpid_to_str(dpid), port)
+        self._set_slave_timeout(dpid, port, idle_timeout)
+        func = self._add_flow.get(ofproto.OFP_VERSION)
+        assert func
+        func(src, port, idle_timeout, datapath)
+
+# ...
+```
+
+The `_get_slave_timeout()` method acquires the current idle_timeout value of the port specified by the specified switch. The _set_slave_timeout() method registers the idle_timeout value of the port specified by the specified switch. In initial status or when the port is removed from the link aggregation group, because the `idle_timeout` value is set to 0, if a new LACP data unit is received, the flow entry is registered regardless of which exchange interval is used.
+
+Depending on the OpenFlow version used, the argument of the constructor of the OFPFlowMod class is different, an the flow entry registration method according to the version is acquired. The following is the flow entry registration method used by OpenFlow 1.2 and later.
+
+
+```python
+def _add_flow_v1_2(self, src, port, timeout, datapath):
+    """enter a flow entry for the packet from the slave i/f
+    with idle_timeout. for OpenFlow ver1.2 and ver1.3."""
+    ofproto = datapath.ofproto
+    parser = datapath.ofproto_parser
+
+    match = parser.OFPMatch(
+        in_port=port, eth_src=src, eth_type=ether.ETH_TYPE_SLOW)
+    actions = [parser.OFPActionOutput(
+        ofproto.OFPP_CONTROLLER, ofproto.OFPCML_MAX)]
+    inst = [parser.OFPInstructionActions(
+        ofproto.OFPIT_APPLY_ACTIONS, actions)]
+    mod = parser.OFPFlowMod(
+        datapath=datapath, command=ofproto.OFPFC_ADD,
+        idle_timeout=timeout, priority=65535,
+        flags=ofproto.OFPFF_SEND_FLOW_REM, match=match,
+        instructions=inst)
+    datapath.send_msg(mod)
+```
+
+In the above source, the flow entry that "sends Packet-In when the LACP data unit is received form the counterpart interface" is set with the highest priority with no communication monitoring time.
+
+#### Send/Receive Processing for LACP DATA Unit
+
+When an LACP data unit is received, after performing "Processing Accompanying Port Enable/Disable State Change" or "Registering Flow Entry Sending Packet-In of an LACP Data Unit", processing creates and sends the response LACP data unit.
+
+```python
+def _do_lacp(self, req_lacp, src, msg):
+# ...
+
+    # create a response packet.
+    res_pkt = self._create_response(datapath, port, req_lacp)
+
+    # packet-out the response packet.
+    out_port = ofproto.OFPP_IN_PORT
+    actions = [parser.OFPActionOutput(out_port)]
+    out = datapath.ofproto_parser.OFPPacketOut(
+        datapath=datapath, buffer_id=ofproto.OFP_NO_BUFFER,
+        data=res_pkt.data, in_port=port, actions=actions)
+    datapath.send_msg(out)
+```
+
+
 
 
 ## References
