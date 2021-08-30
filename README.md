@@ -395,12 +395,99 @@ Here, if interface 1 is disabled, according to the sort logic "Surplus of MAC ad
 Interface 1 | Interface 2 | Interface 3
 --- | --- | ---
 Disabled | Surplus of MAC address:0 | Surplus of MAC address:1
-Interface 1 | Interface 2 | Interface 3
+**Interface 1** | **Interface 2** | **Interface 3**
 &nbsp; | Address:00:00:00:00:00:00 | Address:00:00:00:00:00:01
 &nbsp; | Address:00:00:00:00:00:02 | Address:00:00:00:00:00:03
 &nbsp; | Address:00:00:00:00:00:04 | Address:00:00:00:00:00:05
 &nbsp; | Address:00:00:00:00:00:06 | Address:00:00:00:00:00:07
 &nbsp; | Address:00:00:00:00:00:08
+
+In addition to the flow entry that used interface 1, you can see it is also necessary to rewrite the flow entry of interface 2 and interface 3 as well. This is the same for both when the physical interface is disabled and when it is enabled.
+
+Therefore, when the enable/disable state of a physical interface is changed, processing is to delete all flow entries that use the physical interfaces included in the logical interface to which the said physical interface belongs.
+
+```
+*Note:* The sort logic is not defined in the specification and it is up to the implementation of each device. In Ryu's link aggregation application, unique sort processing is not used and the path sorted by the counterpart device is used.
+```
+
+Here, implement the following functions.
+
+*LACP library*
+
+When an LACP data unit is received, a response is created and sent.
+When reception of LACP data units is interrupted, the corresponding physical interface is assumed to be disabled and the switching hub is notified accordingly.
+When reception of LACP data unit is resumed, the corresponding physical interface is assumed to be enabled and the switching hub is notified accordingly.
+Switching hub
+
+Receives notification from the LACP library and deletes the flow entry that needs initialization.
+Learns and transfers packets other than LACP data units as usual
+The source code of the LACP library and switching hub are in Ryu's source tree.
+
+ryu/lib/lacplib.py
+
+ryu/app/simple_switch_lacp_13.py
+
+*** Implementing the LACP Library
+
+In the following section, we take a look at how the aforementioned functions are implemented in the LACP library. The quoted sources are excerpts. For the entire picture, refer to the actual source.
+
+**** Creating a Logical Interface
+
+In order to use the link aggregation function, it is necessary to configure beforehand the respective network devices as to which interfaces are aggregated as one group. The LACP library uses the following method to configure this setting.
+
+```python
+def add(self, dpid, ports):
+    """add a setting of a bonding i/f.
+    'add' method takes the corresponding args in this order.
+
+    ========= =====================================================
+    Attribute Description
+    ========= =====================================================
+    dpid      datapath id.
+
+    ports     a list of integer values that means the ports face
+              with the slave i/fs.
+    ========= =====================================================
+
+    if you want to use multi LAG, call 'add' method more than once.
+    """
+    assert isinstance(ports, list)
+    assert len(ports) >= 2
+    ifs = {}
+    for port in ports:
+        ifs[port] = {'enabled': False, 'timeout': 0}
+    bond = {dpid: ifs}
+    self._bonds.append(bond)
+```
+
+The content of the arguments are as follows:
+
+dpid
+
+Specifies the data path ID of the OpenFlow switch.
+ports
+
+Specifies the list of port numbers to be grouped.
+By calling this method, the LACP library assumes ports specified by the OpenFlow switch of the specified data path ID as one group. If you wish to create multiple groups, repeat calling the `add()` method. For the MAC address assigned to a logical interface, the same address of the LOCAL port having the OpenFlow switch is used automatically.
+
+*Tip:* Some OpenFlow switches provide a link aggregation function as thje switches’ own function (Open vSwitch, etc.). Here, we don't use such functions unique to the switch and instead implement the link aggregation function through control by the OpenFlow controller.
+
+**** Packet-In Processing
+Switching Hub performs flooding on the received packet when the destination MAC address has not been learned. LACP data units should only be exchanged between adjacent network devices and if transferred to another device the link aggregation function does not operate correctly. Therefore, operation is that if a packet received by Packet-In is an LACP data unit, it is snatched and if the packet is not a LACP data unit, it is left up to the operation of the switching hub. In this operation LACP data units are not shown to the switching hub.
+
+```python
+@set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
+def packet_in_handler(self, evt):
+    """PacketIn event handler. when the received packet was LACP,
+    proceed it. otherwise, send a event."""
+    req_pkt = packet.Packet(evt.msg.data)
+    if slow.lacp in req_pkt:
+        (req_lacp, ) = req_pkt.get_protocols(slow.lacp)
+        (req_eth, ) = req_pkt.get_protocols(ethernet.ethernet)
+        self._do_lacp(req_lacp, req_eth.src, evt.msg)
+    else:
+        self.send_event_to_observers(EventPacketIn(evt.msg))
+```
 
 ## References
 [Ryu-Book - Link Aggregation](https://osrg.github.io/ryu-book/en/html/link_aggregation.html)
