@@ -593,7 +593,7 @@ def _do_lacp(self, req_lacp, src, msg):
 # ...
 ```
 
-The `_get_slave_timeout()` method acquires the current idle_timeout value of the port specified by the specified switch. The _set_slave_timeout() method registers the idle_timeout value of the port specified by the specified switch. In initial status or when the port is removed from the link aggregation group, because the `idle_timeout` value is set to 0, if a new LACP data unit is received, the flow entry is registered regardless of which exchange interval is used.
+The `_get_slave_timeout()` method acquires the current `idle_timeout` value of the port specified by the specified switch. The `_set_slave_timeout()` method registers the `idle_timeout` value of the port specified by the specified switch. In initial status or when the port is removed from the link aggregation group, because the `idle_timeout` value is set to 0, if a new LACP data unit is received, the flow entry is registered regardless of which exchange interval is used.
 
 Depending on the OpenFlow version used, the argument of the constructor of the OFPFlowMod class is different, an the flow entry registration method according to the version is acquired. The following is the flow entry registration method used by OpenFlow 1.2 and later.
 
@@ -641,7 +641,119 @@ def _do_lacp(self, req_lacp, src, msg):
     datapath.send_msg(out)
 ```
 
+The _create_response() method called in the above source is response packet creation processing. Using the _create_lacp() method called there, a response LACP data unit is created. The created response packet is Packet-Out from the port that received the LACP data unit.
 
+In the LACP data unit, the send side (Actor) information and receive side (Partner) information are set. Because the counterpart interface information is described in the send side information of the received LACP data unit, that is set as the receive side information when a response is returned from the OpenFlow switch.
+
+```python
+@set_ev_cls(ofp_event.EventOFPFlowRemoved, MAIN_DISPATCHER)
+def _create_lacp(self, datapath, port, req):
+    """create a LACP packet."""
+    actor_system = datapath.ports[datapath.ofproto.OFPP_LOCAL].hw_addr
+    res = slow.lacp(
+        actor_system_priority=0xffff,
+        actor_system=actor_system,
+        actor_key=req.actor_key,
+        actor_port_priority=0xff,
+        actor_port=port,
+        actor_state_activity=req.LACP_STATE_PASSIVE,
+        actor_state_timeout=req.actor_state_timeout,
+        actor_state_aggregation=req.actor_state_aggregation,
+        actor_state_synchronization=req.actor_state_synchronization,
+        actor_state_collecting=req.actor_state_collecting,
+        actor_state_distributing=req.actor_state_distributing,
+        actor_state_defaulted=req.LACP_STATE_OPERATIONAL_PARTNER,
+        actor_state_expired=req.LACP_STATE_NOT_EXPIRED,
+        partner_system_priority=req.actor_system_priority,
+        partner_system=req.actor_system,
+        partner_key=req.actor_key,
+        partner_port_priority=req.actor_port_priority,
+        partner_port=req.actor_port,
+        partner_state_activity=req.actor_state_activity,
+        partner_state_timeout=req.actor_state_timeout,
+        partner_state_aggregation=req.actor_state_aggregation,
+        partner_state_synchronization=req.actor_state_synchronization,
+        partner_state_collecting=req.actor_state_collecting,
+        partner_state_distributing=req.actor_state_distributing,
+        partner_state_defaulted=req.actor_state_defaulted,
+        partner_state_expired=req.actor_state_expired,
+        collector_max_delay=0)
+    self.logger.info("SW=%s PORT=%d LACP sent.",
+                     dpid_to_str(datapath.id), port)
+    self.logger.debug(str(res))
+    return res
+```
+
+#### Receive Processing of FlowRemoved Message
+
+When LACP data units are not exchanged during the specified period, the OpenFlow switch sends a FlowRemoved message to the OpenFlow controller.
+
+```python
+@set_ev_cls(ofp_event.EventOFPFlowRemoved, MAIN_DISPATCHER)
+def flow_removed_handler(self, evt):
+    """FlowRemoved event handler. when the removed flow entry was
+    for LACP, set the status of the slave i/f to disabled, and
+    send a event."""
+    msg = evt.msg
+    datapath = msg.datapath
+    ofproto = datapath.ofproto
+    dpid = datapath.id
+    match = msg.match
+    if ofproto.OFP_VERSION == ofproto_v1_0.OFP_VERSION:
+        port = match.in_port
+        dl_type = match.dl_type
+    else:
+        port = match['in_port']
+        dl_type = match['eth_type']
+    if ether.ETH_TYPE_SLOW != dl_type:
+        return
+    self.logger.info(
+        "SW=%s PORT=%d LACP exchange timeout has occurred.",
+        dpid_to_str(dpid), port)
+    self._set_slave_enabled(dpid, port, False)
+    self._set_slave_timeout(dpid, port, 0)
+    self.send_event_to_observers(
+        EventSlaveStateChanged(datapath, port, False))
+```
+
+When a FlowRemoved message is received, the OpenFlow controller uses the `_set_slave_enabled()` method to set port disabled state, uses the `_set_slave_timeout()` method to set the `idle_timeout` value to `0`, and uses the `send_event_to_observers()` method to send an `EventSlaveStateChanged` event.
+
+#### Implementing the Application
+
+We explain the difference between the link aggregation application (simple_switch_lacp_13.py) that supports OpenFlow 1.3 described in Executing the Ryu Application and the switching hub of ” Switching Hub”, in order.
+
+##### Setting “_CONTEXTS”
+
+A Ryu application that inherits ryu.base.app_manager.RyuApp starts other applications using separate threads by setting other Ryu applications in the “_CONTEXTS” dictionary. Here, the LacpLib class of the LACP library is set in “_CONTEXTS” in the name of ” lacplib”.
+
+```python
+from ryu.lib import lacplib
+# ...
+class SimpleSwitchLacp13(simple_switch_13.SimpleSwitch13):
+    OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
+    _CONTEXTS = {'lacplib': lacplib.LacpLib}
+
+# ...
+```
+
+Applications set in “_CONTEXTS” can acquire instances from the kwargs of the `__init__()` method.
+
+```python
+def __init__(self, *args, **kwargs):
+    super(SimpleSwitchLacp13, self).__init__(*args, **kwargs)
+    self.mac_to_port = {}
+    self._lacp = kwargs['lacplib']
+# ...
+```
+
+##### Initial Setting of the Library
+
+Initialize the LACP library set in “_CONTEXTS”. For the initial setting, execute the `add()` method provided by the LACP library. Here, set the following values.
+
+Parameter | Value | Explanation
+--- | --- | ---
+dpid | str_to_dpid(‘0000000000000001’) | Data path ID
+ports | [1, 2] | List of port to be grouped
 
 
 ## References
