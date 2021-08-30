@@ -292,6 +292,7 @@ You can tell that s1-eth2 is used for communication between h3 and h1.
 As a matter of course, ping can be executed from host H4 to host h1 as well. As before, new flow entries are registered and s1-eth1 is used for communication between h4 and h1.
 
 Destination host | Port used
+--- | ---
 h2 | 1
 h3 | 2
 h4 | 1
@@ -300,13 +301,36 @@ As shown above, we were able to confirm use of different links depending on comm
 
 ### Improving Fault Tolerance
 
-Check improvement in fault tolerance as a result of link aggregation. The current state is that when h2 and h4 communicate with h1, `s1-eth2` is used and when h3 communicates with h1, s1-eth1 is used.
+Check improvement in fault tolerance as a result of link aggregation. The current state is that when `h2` and `h4` communicate with h1, `s1-eth2` is used and when `h3` communicates with `h1`, `s1-eth1` is used.
 
-Here, we separate h1-eth0, which is the counterpart interface of `s1-eth1`, from the link aggregation group.
+Here, we separate `h1-eth0`, which is the counterpart interface of `s1-eth1`, from the link aggregation group.
 
 Node: h1:
 ```zsh
 py s1.cmd("ip link set h1-eth0 nomaster")
+```
+
+Because `h1-eth0` has stopped, pings can no longer be sent from host `h3` to host `h1`. When 90 seconds of no communication monitoring time elapses, the following message is output to the controller's operation log.
+
+Node: c0:
+```zsh
+...
+[LACP][INFO] SW=0000000000000001 PORT=2 LACP received.
+[LACP][INFO] SW=0000000000000001 PORT=2 LACP sent.
+[LACP][INFO] SW=0000000000000001 PORT=1 LACP exchange timeout has occurred.
+slave state changed port: 1 enabled: False
+...
+```
+
+“LACP exchange timeout has occurred.” indicates that the no communication monitoring time has elapsed. Here, by deleting all learned MAC addresses and flow entries for transfer, the switch is returned to the state that was in effect just after it started.
+
+If new communication arises, the new MAC address is learned and flow entries are registered again using only living links.
+
+New flow entries are registered related to communication between host `h3` and host `h1`.
+
+Node: `s1`:
+```zsh
+
 ```
 
 ## References
