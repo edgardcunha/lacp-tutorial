@@ -396,12 +396,11 @@ Interface 1 | Interface 2 | Interface 3
 --- | --- | ---
 Disabled | Surplus of MAC address:0 | Surplus of MAC address:1
 Interface 1 | Interface 2 | Interface 3
---- | --- | ---
- | Address:00:00:00:00:00:00 | Address:00:00:00:00:00:01
- | Address:00:00:00:00:00:02 | Address:00:00:00:00:00:03
- | Address:00:00:00:00:00:04 | Address:00:00:00:00:00:05
- | Address:00:00:00:00:00:06 | Address:00:00:00:00:00:07
- | Address:00:00:00:00:00:08
+&nbsp; | Address:00:00:00:00:00:00 | Address:00:00:00:00:00:01
+&nbsp; | Address:00:00:00:00:00:02 | Address:00:00:00:00:00:03
+&nbsp; | Address:00:00:00:00:00:04 | Address:00:00:00:00:00:05
+&nbsp; | Address:00:00:00:00:00:06 | Address:00:00:00:00:00:07
+&nbsp; | Address:00:00:00:00:00:08
 
 ## References
 [Ryu-Book - Link Aggregation](https://osrg.github.io/ryu-book/en/html/link_aggregation.html)
