@@ -330,8 +330,42 @@ New flow entries are registered related to communication between host `h3` and h
 
 Node: `s1`:
 ```zsh
-
+py s1.cmd("ovs-ofctl -O openflow13 dump-flows s1")
 ```
+
+ping that had been stopped at host h3 resumes.
+
+Node: `h3`:
+```zsh
+...
+64 bytes from 10.0.0.1: icmp_req=144 ttl=64 time=0.193 ms
+64 bytes from 10.0.0.1: icmp_req=145 ttl=64 time=0.081 ms
+64 bytes from 10.0.0.1: icmp_req=146 ttl=64 time=0.095 ms
+64 bytes from 10.0.0.1: icmp_req=237 ttl=64 time=44.1 ms
+64 bytes from 10.0.0.1: icmp_req=238 ttl=64 time=2.52 ms
+64 bytes from 10.0.0.1: icmp_req=239 ttl=64 time=0.371 ms
+64 bytes from 10.0.0.1: icmp_req=240 ttl=64 time=0.103 ms
+64 bytes from 10.0.0.1: icmp_req=241 ttl=64 time=0.067 ms
+...
+```
+
+As explained above, even though a failure occurs in some links, we were able to check that it can be automatically recovered using other links.
+
+## Implementing the Link Aggregation Function with Ryu
+
+Now we are going to see how the link aggregation function is implemented using OpenFlow.
+
+With a link aggregation using LACP, the behavior is like this: “While LACP data units are exchanged normally, the relevant physical interface is enabled” and “If exchange of LACP data units is suspended, the physical interface becomes disabled”. Disabling of a physical interface means that no flow entries exist that use that interface. Therefore, by implementing the following processing:
+* Create and send a response when an LACP data unit is received.
+* If an LACP data unit cannot be received for a certain period of time, the flow entry that uses the physical interface and after that flow entries that use the interface are not registered.
+* If an LACP data unit is received by the disabled physical interface, said interface is enabled again.
+* Packets other than the LACP data unit are learned and transferred, as with ” Switching Hub”.
+
+...basic operation of link aggregation becomes possible. Because the part related to LACP and the part not related to LACP are clearly separated, you can implement by cutting out the part related to LACP as an LACP library and extending the switching hub of “Switching Hub” for the part not related to LACP.
+
+Because creation and sending of responses after an LACP data unit is received cannot be achieved only by flow entries, we use the Packet-In message for processing at the OpenFlow controller side.
+
+
 
 ## References
 [Ryu-Book - Link Aggregation](https://osrg.github.io/ryu-book/en/html/link_aggregation.html)
