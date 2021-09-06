@@ -91,7 +91,7 @@ Checking bonding on `h1`.
 ```zsh
 py h1.cmd("modprobe bonding")
 ```
-
+Next, create a new logical interface named `bond0`. Also, set an appropriate value for the MAC address of `bond0` on `h1` node.
 ```zsh
 py h1.cmd("ip link add bond0 type bond")
 py h1.cmd("ip link set bond0 address 02:01:02:03:04:08")
