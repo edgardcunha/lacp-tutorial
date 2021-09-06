@@ -9,7 +9,7 @@ VM: Ubuntu 21.04, 1024 MB de RAM, 1 CPU, Python 3.9.5
 ### Setting Link Aggregation in Host h1
 
 ```zsh
-py h1.cmd("ifconfig")
+h1 ifconfig
 ```
 
 ```zsh
