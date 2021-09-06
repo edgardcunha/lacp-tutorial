@@ -7,8 +7,8 @@ Testing Link Aggregation Control Protocol with Mininet
    1. [Configuring an Experimental Environment](#Configuring-an-Experimental-Environment)
    2. [Setting Link Aggregation in Host h1](#Setting-Link-Aggregation-in-Host-h1)
    3. [Setting OpenFlow Version](#Setting-OpenFlow-Version)
-3. Conclusion
-4. References
+3. [Conclusion](#conclusion)
+4. [References](#references)
 
 ## SETUP
 VM: Ubuntu 21.04, 1024 MB de RAM, 1 CPU, Python 3.9.5
