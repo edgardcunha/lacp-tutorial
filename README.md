@@ -1,7 +1,7 @@
 # Tutorial: Testing Link Aggregation with Mininet
 Testing Link Aggregation Control Protocol with Mininet
 
-# Table of Contents
+## Table of Contents
 1. [SETUP](#setup)
 2. [Implementation](#implementation)
 3. [Configuring an Experimental Environment](#Configuring-an-Experimental-Environment)
