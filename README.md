@@ -1,6 +1,10 @@
 # Tutorial: Testing Link Aggregation with Mininet
 Testing Link Aggregation Control Protocol with Mininet
 
+# Table of Contents
+1. [Example](#setup)
+2. [Example2](#implementation)
+
 ## SETUP
 VM: Ubuntu 21.04, 1024 MB de RAM, 1 CPU, Python 3.9.5
 
@@ -21,10 +25,12 @@ By executing this script, a topology is created in which two links exist between
 ```zsh
 curl -O https://raw.githubusercontent.com/edgardcunha/lacp-tutorial/main/link_aggregation.py
 ```
-
-
 ```zsh
-sudo ./link_aggregation.py
+sudo python3 link_aggregation.py
+```
+```zsh
+Unable to contact the remote controller at 127.0.0.1:6633
+mininet> net
 ```
 
 ### Setting Link Aggregation in Host h1
