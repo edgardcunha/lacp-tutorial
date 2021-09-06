@@ -6,6 +6,27 @@ VM: Ubuntu 21.04, 1024 MB de RAM, 1 CPU, Python 3.9.5
 
 ## Implementation
 
+### Configuring an Experimental Environment
+
+Let’s configure a link aggregation between the OpenFlow switch and Linux host.
+
+For details on the environment setting and login method, etc. to use the VM images, refer to ” Switching Hub.”
+
+First of all, using Mininet, create the topology shown below.
+
+Create a script to call Mininet’s API and configure the necessary topology.
+
+By executing this script, a topology is created in which two links exist between host h1 and switch s1. It is possible to use the net command to check the created topology.
+
+```zsh
+curl -O https://raw.githubusercontent.com/edgardcunha/lacp-tutorial/main/link_aggregation.py
+```
+
+
+```zsh
+sudo ./link_aggregation.py
+```
+
 ### Setting Link Aggregation in Host h1
 
 ```zsh
