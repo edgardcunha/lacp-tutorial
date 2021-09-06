@@ -91,12 +91,15 @@ Checking bonding on `h1`.
 ```zsh
 h1 modprobe bonding
 ```
-Next, create a new logical interface named `bond0`. Also, set an appropriate value for the MAC address of `bond0` on `h1` node.
+Next, create a new logical interface named `bond0` on `h1` node.
 ```zsh
 h1 ip link add bond0 type bond
+```
+Also, set an appropriate value for the MAC address of `bond0` on `h1` node.
+```zsh
 h1 ip link set bond0 address 02:01:02:03:04:08
 ```
-
+Add the physical interfaces of `h1-eth0` and `h1-eth1` to the created local interface group. At that time, you need to make the physical interface to have been down. Also, rewrite the MAC address of the physical interface, which was randomly decided, to an easy-to-understand value beforehand.
 ```zsh
 h1 ip link set h1-eth0 down
 h1 ip link set h1-eth0 address 00:00:00:00:00:11
@@ -105,24 +108,23 @@ h1 ip link set h1-eth1 down
 h1 ip link set h1-eth1 address 00:00:00:00:00:12
 h1 ip link set h1-eth1 master bond0
 ```
-
+Assign an IP address to the logical interface. Here, let’s assign `10.0.0.1`. Because an IP address has been assigned to `h1-eth0`, delete this address.
 ```zsh
 h1 ip a add 10.0.0.1/8 dev bond0
 h1 ip a del 10.0.0.1/8 dev h1-eth0
 ```
-
+Finally, make the logical interface up.
 ```zsh
 h1 ip link set bond0 up
 ```
-
+Now, let’s check the state of each interface.
 ```zsh
-py h1.cmd("ifconfig")
+h1 ifconfig
 ```
-
+You can see that logical interface bond0 is the MASTER and physical interface `h1-eth0` and `h1-eth1` are the SLAVE. Also, you can see that all of the MAC addresses of `bond0`, `h1-eth0`, and `h1-eth1` are the same. Check the state of the bonding driver as well.
 ```zsh
 py h1.cmd("cat /proc/net/bonding/bond0")
 ```
-
 ```zsh
 Ethernet Channel Bonding Driver: v5.11.0-31-generic
 
@@ -201,6 +203,9 @@ details partner lacp pdu:
     port number: 1
     port state: 1
 ```
+You can check the exchange intervals (LACP rate: slow) of the LACP data units and sort logic setting (Transmit Hash Policy: layer2 (0)). You can also check the MAC address of the physical interfaces `h1-eth0` and `h1-eth1`.
+
+Now pre-setting for host `h1` has been completed.
 
 ## Setting OpenFlow Version
 
