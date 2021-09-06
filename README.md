@@ -89,30 +89,30 @@ options bonding mode=4
 ```
 Checking bonding on `h1`.
 ```zsh
-py h1.cmd("modprobe bonding")
+h1 modprobe bonding
 ```
 Next, create a new logical interface named `bond0`. Also, set an appropriate value for the MAC address of `bond0` on `h1` node.
 ```zsh
-py h1.cmd("ip link add bond0 type bond")
-py h1.cmd("ip link set bond0 address 02:01:02:03:04:08")
+h1 ip link add bond0 type bond
+h1 ip link set bond0 address 02:01:02:03:04:08
 ```
 
 ```zsh
-py h1.cmd("ip link set h1-eth0 down")
-py h1.cmd("ip link set h1-eth0 address 00:00:00:00:00:11")
-py h1.cmd("ip link set h1-eth0 master bond0")
-py h1.cmd("ip link set h1-eth1 down")
-py h1.cmd("ip link set h1-eth1 address 00:00:00:00:00:12")
-py h1.cmd("ip link set h1-eth1 master bond0")
+h1 ip link set h1-eth0 down
+h1 ip link set h1-eth0 address 00:00:00:00:00:11
+h1 ip link set h1-eth0 master bond0
+h1 ip link set h1-eth1 down
+h1 ip link set h1-eth1 address 00:00:00:00:00:12
+h1 ip link set h1-eth1 master bond0
 ```
 
 ```zsh
-py h1.cmd("ip addr add 10.0.0.1/8 dev bond0")
-py h1.cmd("ip addr del 10.0.0.1/8 dev h1-eth0")
+h1 ip a add 10.0.0.1/8 dev bond0
+h1 ip a del 10.0.0.1/8 dev h1-eth0
 ```
 
 ```zsh
-py h1.cmd("ip link set bond0 up")
+h1 ip link set bond0 up
 ```
 
 ```zsh
