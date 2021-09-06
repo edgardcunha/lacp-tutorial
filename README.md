@@ -69,6 +69,21 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 ```
 
+First of all, load the driver module to perform link aggregation. In Linux, the link aggregation function is taken care of by the bonding driver. 
+Checking if the `bonding` module is enabled.
+```zsh
+modinfo bonding
+```
+Create the `/etc/modprobe.d/bonding.conf` configuration file.
+```zsh
+sudo nano /etc/modprobe.d/bonding.conf
+```
+mode=4 indicates that dynamic link aggregation is performed using LACP. Setting is omitted here because it is the default but it has been set so that the exchange interval of the LACP data units is SLOW (30-second intervals) and the sort logic is based on the destination MAC address.
+```zsh
+alias bond0 bonding
+options bonding mode=4
+```
+Checking bonding on `h1`.
 ```zsh
 py h1.cmd("modprobe bonding")
 ```
