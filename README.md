@@ -4,8 +4,8 @@ Testing Link Aggregation Control Protocol with Mininet
 # Table of Contents
 1. [SETUP](#setup)
 2. [Implementation](#implementation)
-3. [Configuring an Experimental Environment](#Configuring an Experimental Environment)
-4. [Setting Link Aggregation in Host h1](#Setting Link Aggregation in Host h1)
+3. [Configuring an Experimental Environment](#Configuring-an-Experimental-Environment)
+4. [Setting Link Aggregation in Host h1](#Setting-Link-Aggregation-in-Host-h1)
 
 ## SETUP
 VM: Ubuntu 21.04, 1024 MB de RAM, 1 CPU, Python 3.9.5
