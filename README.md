@@ -412,8 +412,8 @@ With a link aggregation using LACP, the behavior is like this: “While LACP dat
 Because creation and sending of responses after an LACP data unit is received cannot be achieved only by flow entries, we use the Packet-In message for processing at the OpenFlow controller side.
 
 
-| :warning: *Note:* Physical interfaces that exchange LACP data units are classified as `ACTIVE` and `PASSIVE`, depending on their role. `ACTIVE` sends LACP data units at specified intervals to actively check communication. `PASSIVE` passively checks communication by returning a response after receiving the LACP data unit sent from `ACTIVE`. Ryu’s link aggregation application implements only the `PASSIVE` mode. |
-| -- |
+| :warning: Note: Physical interfaces that exchange LACP data units are classified as `ACTIVE` and `PASSIVE`, depending on their role. `ACTIVE` sends LACP data units at specified intervals to actively check communication. `PASSIVE` passively checks communication by returning a response after receiving the LACP data unit sent from `ACTIVE`. Ryu’s link aggregation application implements only the `PASSIVE` mode. |
+| :-- |
 
 If no LACP data unit is received for a predetermined period of time, the physical interface is disabled. Because of this processing, by setting `idle_timeout` for the flow entry that performs Packet-In of the LACP data unit, when timeout occurs, by sending the `FlowRemoved` message, it is possible for the OpenFlow controller to handle it when the interface is disabled.
 
@@ -451,9 +451,9 @@ In addition to the flow entry that used interface 1, you can see it is also nece
 
 Therefore, when the enable/disable state of a physical interface is changed, processing is to delete all flow entries that use the physical interfaces included in the logical interface to which the said physical interface belongs.
 
-```
-*Note:* The sort logic is not defined in the specification and it is up to the implementation of each device. In Ryu's link aggregation application, unique sort processing is not used and the path sorted by the counterpart device is used.
-```
+
+| :warning: Note: The sort logic is not defined in the specification and it is up to the implementation of each device. In Ryu's link aggregation application, unique sort processing is not used and the path sorted by the counterpart device is used. |
+| :-- |
 
 Here, implement the following functions.
 
