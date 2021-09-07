@@ -10,6 +10,7 @@ Testing Link Aggregation Control Protocol with Mininet
    4. [Checking the Link Aggregation Function](#Checking-the-Link-Aggregation-Function)
 3. [Implementing the Link Aggregation Function with Ryu](#Implementing-the-Link-Aggregation-Function-with-Ryu)
    1. [Creating a Logical Interface](#Creating-a-Logical-Interface)
+   2. [Processing Accompanying Port Enable/Disable State Change](#Processing-Accompanying-Port-Enable-Disable-State-Change)
 5. [Conclusion](#Conclusion)
 6. [References](#References)
 
@@ -250,9 +251,9 @@ cookie=0x0, duration=303.608s, table=0, n_packets=6, n_bytes=528, priority=0 act
 
 In the switch,
 
-* The Packet-In message is sent when the LACP data unit (ethertype is 0x8809) is sent from h1's h1-eth1 (the input port is s1-eth2 and the MAC address is 00:00:00:00:00:12).
-* The Packet-In message is sent when the LACP data unit (ethertype is 0x8809) is sent from h1's h1-eth0 (the input port is s1-eth1 and the MAC address is 00:00:00:00:00:11)
-* The same Table-miss flow entry as that of "Switching Hub".
+* The Packet-In message is sent when the LACP data unit `ethertype is 0x8809` is sent from h1's `h1-eth1` (the input port is `s1-eth2` and the MAC address is `00:00:00:00:00:12`).
+* The Packet-In message is sent when the LACP data unit `ethertype is 0x8809` is sent from h1's `h1-eth0` (the input port is `s1-eth1` and the MAC address is `00:00:00:00:00:11`)
+* The same Table-miss flow entry as that of "[Switching Hub](https://osrg.github.io/ryu-book/en/html/switching_hub.html#ch-switching-hub)".
 
 The above three flow entries have been registered.
 
@@ -261,9 +262,7 @@ The above three flow entries have been registered.
 #### Improving Communication Speed
 First of all, check improvement in the communication speed as a result of link aggregation. Let's take a look at the ways of using different links depending on communication.
 
-First, execute ping from host `h2` to host `h1`.
-
-Node: h2:
+First, execute ping from host `h2` to host `h1`. On node `h2`:
 ```zsh
 h2 ping 10.0.0.1 -c4
 ```
@@ -277,9 +276,7 @@ h2 ping 10.0.0.1 -c4
 ...
 ```
 
-While continuing to send pings, check the flow entry of switch s1.
-
-Node: s1:
+While continuing to send pings, check the flow entry of switch s1. On node `s1`:
 ```zsh
 s1 ovs-ofctl -O openflow13 dump-flows s1
 ```
@@ -296,13 +293,11 @@ After the previous check point, two flow entries have been added. They are the 4
 
 The respective flow entry is as follows:
 
-When a packet address to bond0 of h1 is received from the 3rd port (`s1-eth3`, that is, the counterpart interface of `h2`), it is output from the first port (`s1-eth1`).
+When a packet address to bond0 of `h1` is received from the 3rd port (`s1-eth3`, that is, the counterpart interface of `h2`), it is output from the first port (`s1-eth1`).
 When a packet addressed to `h2` is received from the 1st port (`s1-eth1`), it is output from the 3rd port (`s1-eth3`).
 You can tell that `s1-eth1` is used for communication between `h2` and `h1`.
 
-Next, execute ping from host h3 to host h1.
-
-Node: h3:
+Next, execute ping from host `h3` to host `h1`. On node `h3`:
 
 ```zsh
 h3 ping 10.0.0.1 -c4
@@ -317,9 +312,7 @@ h3 ping 10.0.0.1 -c4
 ...
 ```
 
-While continuing to send pings, check the flow entry of switch `s1`.
-
-Node: s1:
+While continuing to send pings, check the flow entry of switch `s1`. On node `s1`:
 ```zsh
 s1 ovs-ofctl -O openflow13 dump-flows s1
 ```
@@ -544,7 +537,7 @@ def packet_in_handler(self, evt):
 
 The event handler itself is the same as “Switching Hub”. Processing is branched depending on whether or not the LACP data unit is included in the received massage.
 
-When the LACP data unit is included, the LACP library’s LACP data unit receive processing is performed. If the LACP data unit is not included, a method named send_event_to_observers() is called. This method is used to send an event defined in the ryu.base.app_manager.RyuApp class.
+When the LACP data unit is included, the LACP library’s LACP data unit receive processing is performed. If the LACP data unit is not included, a method named `send_event_to_observers()` is called. This method is used to send an event defined in the `ryu.base.app_manager.RyuApp` class.
 
 In Switching Hub, we mentioned the OpenFlow message receive event defined in Ryu, but users can define their own event. The event called EventPacketIn, which is sent in the above source, is a user-defined event created in the LACP library.
 
@@ -557,7 +550,7 @@ class EventPacketIn(event.EventBase):
         self.msg = msg
 ```
 
-User-defined events are created by inheriting the ryu.controller.event.EventBase class. There is no limit on data enclosed in the event class. In the EventPacketIn class, the ryu.ofproto.OFPPacketIn instance received by the Packet-In message is used as is.
+User-defined events are created by inheriting the `ryu.controller.event.EventBase` class. There is no limit on data enclosed in the event class. In the `EventPacketIn` class, the `ryu.ofproto.OFPPacketIn` instance received by the Packet-In message is used as is.
 
 The method of receiving user-defined events is explained in a later section.
 
