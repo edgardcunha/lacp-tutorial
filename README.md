@@ -768,9 +768,9 @@ When a FlowRemoved message is received, the OpenFlow controller uses the `_set_s
 
 We explain the difference between the link aggregation application `simple_switch_lacp_13.py` that supports OpenFlow 1.3 described in Executing the Ryu Application and the switching hub of [Switching Hub](https://osrg.github.io/ryu-book/en/html/switching_hub.html#ch-switching-hub), in order.
 
-##### Setting “_CONTEXTS”
+##### Setting `_CONTEXTS`
 
-A Ryu application that inherits ryu.base.app_manager.RyuApp starts other applications using separate threads by setting other Ryu applications in the “_CONTEXTS” dictionary. Here, the LacpLib class of the LACP library is set in “_CONTEXTS” in the name of `lacplib`.
+A Ryu application that inherits `ryu.base.app_manager.RyuApp` starts other applications using separate threads by setting other Ryu applications in the `_CONTEXTS` dictionary. Here, the LacpLib class of the LACP library is set in `_CONTEXTS` in the name of `lacplib`.
 
 ```python
 from ryu.lib import lacplib
