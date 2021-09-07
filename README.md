@@ -508,7 +508,7 @@ def add(self, dpid, ports):
 
 The content of the arguments are as follows:
 
-dpid
+`dpid`
 
 Specifies the data path ID of the OpenFlow switch.
 ports
@@ -539,7 +539,7 @@ The event handler itself is the same as “Switching Hub”. Processing is branc
 
 When the LACP data unit is included, the LACP library’s LACP data unit receive processing is performed. If the LACP data unit is not included, a method named `send_event_to_observers()` is called. This method is used to send an event defined in the `ryu.base.app_manager.RyuApp` class.
 
-In Switching Hub, we mentioned the OpenFlow message receive event defined in Ryu, but users can define their own event. The event called EventPacketIn, which is sent in the above source, is a user-defined event created in the LACP library.
+In Switching Hub, we mentioned the OpenFlow message receive event defined in Ryu, but users can define their own event. The event called `EventPacketIn`, which is sent in the above source, is a user-defined event created in the LACP library.
 
 ```python
 class EventPacketIn(event.EventBase):
@@ -582,7 +582,7 @@ def _do_lacp(self, req_lacp, src, msg):
 
 The `_get_slave_enabled()` method acquires information as to whether or not the port specified by the specified switch is enabled. The `_set_slave_enabled()` method sets the enable/disable state of the port specified by the specified switch.
 
-In the above source, when an LACP data unit is received by a port in the disabled state, the user-defined event called EventSlaveStateChanged is sent, which indicates that the port state has been changed.
+In the above source, when an LACP data unit is received by a port in the disabled state, the user-defined event called `EventSlaveStateChanged` is sent, which indicates that the port state has been changed.
 
 ```python
 class EventSlaveStateChanged(event.EventBase):
@@ -598,7 +598,7 @@ class EventSlaveStateChanged(event.EventBase):
 
 Other than when a port is enabled, the EventSlaveStateChanged event is also sent when a port is disabled. Processing when disabled is implemented in “Receive Processing of FlowRemoved Message”.
 
-The EventSlaveStateChanged class includes the following information:
+The `EventSlaveStateChanged` class includes the following information:
 
 OpenFlow switch where port enable/disable state has been changed
 Port number where port enable/disable state has been changed
@@ -608,7 +608,7 @@ State after the change
 
 For exchange intervals of LACP data units, two types have been defined, FAST (every 1 second) and SLOW (every 30 seconds). In the link aggregation specifications, if no communication status continues for three times the exchange interval, the interface is removed from the link aggregation group and is no longer used for packet transfer.
 
-The LACP library monitors no communication by setting three times the exchange interval (SHORT_TIMEOUT_TIME is 3 seconds, and LONG_TIMEOUT_TIME is 90 seconds) as idle_timeout for the flow entry sending Packet-In when an LACP data unit is received.
+The LACP library monitors no communication by setting three times the exchange interval (`SHORT_TIMEOUT_TIME` is 3 seconds, and `LONG_TIMEOUT_TIME` is 90 seconds) as idle_timeout for the flow entry sending Packet-In when an LACP data unit is received.
 
 If the exchange interval was changed, it is necessary to re-set the idle_timeout time, which the LACP library implements as follows:
 
@@ -687,7 +687,7 @@ def _do_lacp(self, req_lacp, src, msg):
     datapath.send_msg(out)
 ```
 
-The _create_response() method called in the above source is response packet creation processing. Using the _create_lacp() method called there, a response LACP data unit is created. The created response packet is Packet-Out from the port that received the LACP data unit.
+The `_create_response()` method called in the above source is response packet creation processing. Using the `_create_lacp()` method called there, a response LACP data unit is created. The created response packet is Packet-Out from the port that received the LACP data unit.
 
 In the LACP data unit, the send side (Actor) information and receive side (Partner) information are set. Because the counterpart interface information is described in the send side information of the received LACP data unit, that is set as the receive side information when a response is returned from the OpenFlow switch.
 
@@ -766,11 +766,11 @@ When a FlowRemoved message is received, the OpenFlow controller uses the `_set_s
 
 #### Implementing the Application
 
-We explain the difference between the link aggregation application (simple_switch_lacp_13.py) that supports OpenFlow 1.3 described in Executing the Ryu Application and the switching hub of ” Switching Hub”, in order.
+We explain the difference between the link aggregation application `simple_switch_lacp_13.py` that supports OpenFlow 1.3 described in Executing the Ryu Application and the switching hub of [Switching Hub](https://osrg.github.io/ryu-book/en/html/switching_hub.html#ch-switching-hub), in order.
 
 ##### Setting “_CONTEXTS”
 
-A Ryu application that inherits ryu.base.app_manager.RyuApp starts other applications using separate threads by setting other Ryu applications in the “_CONTEXTS” dictionary. Here, the LacpLib class of the LACP library is set in “_CONTEXTS” in the name of ” lacplib”.
+A Ryu application that inherits ryu.base.app_manager.RyuApp starts other applications using separate threads by setting other Ryu applications in the “_CONTEXTS” dictionary. Here, the LacpLib class of the LACP library is set in “_CONTEXTS” in the name of `lacplib`.
 
 ```python
 from ryu.lib import lacplib
@@ -782,7 +782,7 @@ class SimpleSwitchLacp13(simple_switch_13.SimpleSwitch13):
 # ...
 ```
 
-Applications set in “_CONTEXTS” can acquire instances from the kwargs of the `__init__()` method.
+Applications set in `_CONTEXTS` can acquire instances from the kwargs of the `__init__()` method.
 
 ```python
 def __init__(self, *args, **kwargs):
@@ -794,7 +794,7 @@ def __init__(self, *args, **kwargs):
 
 ##### Initial Setting of the Library
 
-Initialize the LACP library set in “_CONTEXTS”. For the initial setting, execute the `add()` method provided by the LACP library. Here, set the following values.
+Initialize the LACP library set in `_CONTEXTS`. For the initial setting, execute the `add()` method provided by the LACP library. Here, set the following values.
 
 Parameter | Value | Explanation
 --- | --- | ---
@@ -813,7 +813,7 @@ def __init__(self, *args, **kwargs):
 
 ### Receiving User-defined Events
 
-As explained in Implementing the LACP Library, the LACP library sends a Packet-In message that does not contain the LACP data unit as a user-defined event called EventPacketIn. The event handler of the user-defined event uses the ryu.controller.handler.set_ev_cls decorator to decorate, as with the event handler provided by Ryu.
+As explained in Implementing the LACP Library, the LACP library sends a Packet-In message that does not contain the LACP data unit as a user-defined event called `EventPacketIn`. The event handler of the user-defined event uses the `ryu.controller.handler.set_ev_cls` decorator to decorate, as with the event handler provided by Ryu.
 
 ```python
 @set_ev_cls(lacplib.EventPacketIn, MAIN_DISPATCHER)
@@ -827,7 +827,7 @@ def _packet_in_handler(self, ev):
 # ...
 ```
 
-Also, when the enable/disable condition of a port is changed, the LACP library sends an EventSlaveStateChanged event, therefore, create an event handler for this as well.
+Also, when the enable/disable condition of a port is changed, the LACP library sends an `EventSlaveStateChanged` event, therefore, create an event handler for this as well.
 
 ```python
 @set_ev_cls(lacplib.EventSlaveStateChanged, MAIN_DISPATCHER)
