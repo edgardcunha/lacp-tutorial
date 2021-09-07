@@ -414,6 +414,7 @@ Because creation and sending of responses after an LACP data unit is received ca
 
 | :warning: *Note:* Physical interfaces that exchange LACP data units are classified as ACTIVE and PASSIVE, depending on their role. ACTIVE sends LACP data units at specified intervals to actively check communication. PASSIVE passively checks communication by returning a response after receiving the LACP data unit sent from ACTIVE. |
 | Ryu’s link aggregation application implements only the PASSIVE mode. |
+| -- |
 
 If no LACP data unit is received for a predetermined period of time, the physical interface is disabled. Because of this processing, by setting `idle_timeout` for the flow entry that performs Packet-In of the LACP data unit, when timeout occurs, by sending the `FlowRemoved` message, it is possible for the OpenFlow controller to handle it when the interface is disabled.
 
