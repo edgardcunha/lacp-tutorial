@@ -211,15 +211,15 @@ Now pre-setting for host `h1` has been completed.
 
 ## Setting OpenFlow Version
 
-Set the OpenFlow version of switch s1 to 1.3. Input this command on xterm of switch s1.
+Set the OpenFlow version of switch `s1` to 1.3.
 
 ```zsh
 s1 ovs-vsctl set Bridge s1 protocols=OpenFlow13
 ```
 
-Executing the Switching Hub
+Executing the Switching Hub in other SSH session.
 ```zsh
-py c0.cmd("ryu-manager lacp/ryu.app.simple_switch_lacp_13")
+ryu-manager lacp/ryu.app.simple_switch_lacp_13.py
 ```
 
 ```zsh
@@ -238,10 +238,8 @@ slave state changed port: 2 enabled: True
 ```
 
 Let’s check flow entry.
-Node: s1:
-
 ```zsh
-py s1.cmd("ovs-ofctl -O openflow13 dump-flows s1")
+s1 ovs-ofctl -O openflow13 dump-flows s1
 ```
 
 ```zsh{.line-numbers}
@@ -283,7 +281,7 @@ While continuing to send pings, check the flow entry of switch s1.
 
 Node: s1:
 ```zsh
-py s1.cmd("ovs-ofctl -O openflow13 dump-flows s1")
+s1 ovs-ofctl -O openflow13 dump-flows s1
 ```
 
 ```zsh
