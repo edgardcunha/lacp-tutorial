@@ -214,7 +214,7 @@ Now pre-setting for host `h1` has been completed.
 Set the OpenFlow version of switch s1 to 1.3. Input this command on xterm of switch s1.
 
 ```zsh
-py s1.cmd("ovs-vsctl set Bridge s1 protocols=OpenFlow13")
+s1 ovs-vsctl set Bridge s1 protocols=OpenFlow13
 ```
 
 Executing the Switching Hub
@@ -267,7 +267,7 @@ First, execute ping from host `h2` to host `h1`.
 
 Node: h2:
 ```zsh
-py h2.cmd("ping 10.0.0.1 -c4")
+h2 ping 10.0.0.1 -c4
 ```
 
 ```zsh
