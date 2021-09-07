@@ -9,7 +9,8 @@ Testing Link Aggregation Control Protocol with Mininet
    3. [Setting OpenFlow Version](#Setting-OpenFlow-Version)
    4. [Checking the Link Aggregation Function](#Checking-the-Link-Aggregation-Function)
 3. [Implementing the Link Aggregation Function with Ryu](#Implementing-the-Link-Aggregation-Function-with-Ryu)
-4. [Conclusion](#Conclusion)
+   1. [Creating a Logical Interface](#Creating-a-Logical-Interface)
+5. [Conclusion](#Conclusion)
 6. [References](#References)
 
 ## SETUP
@@ -27,7 +28,7 @@ First of all, using Mininet, create the topology shown below.
 
 Create a script to call Mininet’s API and configure the necessary topology.
 
-By executing this script, a topology is created in which two links exist between host h1 and switch s1. It is possible to use the net command to check the created topology.
+By executing this script, a topology is created in which two links exist between host `h1` and switch `s1`. It is possible to use the net command to check the created topology.
 
 ```zsh
 curl -O https://raw.githubusercontent.com/edgardcunha/lacp-tutorial/main/link_aggregation.py
@@ -262,7 +263,7 @@ The above three flow entries have been registered.
 #### Improving Communication Speed
 First of all, check improvement in the communication speed as a result of link aggregation. Let's take a look at the ways of using different links depending on communication.
 
-First, execute ping from host h2 to host h1.
+First, execute ping from host `h2` to host `h1`.
 
 Node: h2:
 ```zsh
@@ -297,16 +298,16 @@ After the previous check point, two flow entries have been added. They are the 4
 
 The respective flow entry is as follows:
 
-When a packet address to bond0 of h1 is received from the 3rd port (s1-eth3, that is, the counterpart interface of h2), it is output from the first port (s1-eth1).
-When a packet addressed to h2 is received from the 1st port (s1-eth1), it is output from the 3rd port (s1-eth3).
-You can tell that s1-eth1 is used for communication between h2 and h1.
+When a packet address to bond0 of h1 is received from the 3rd port (`s1-eth3`, that is, the counterpart interface of `h2`), it is output from the first port (`s1-eth1`).
+When a packet addressed to `h2` is received from the 1st port (`s1-eth1`), it is output from the 3rd port (`s1-eth3`).
+You can tell that `s1-eth1` is used for communication between `h2` and `h1`.
 
 Next, execute ping from host h3 to host h1.
 
 Node: h3:
 
 ```zsh
-py h3.cmd("ping 10.0.0.1 -c4")
+h3 ping 10.0.0.1 -c4
 ```
 
 ```zsh
@@ -318,11 +319,11 @@ py h3.cmd("ping 10.0.0.1 -c4")
 ...
 ```
 
-While continuing to send pings, check the flow entry of switch s1.
+While continuing to send pings, check the flow entry of switch `s1`.
 
 Node: s1:
 ```zsh
-py s1.cmd("ovs-ofctl -O openflow13 dump-flows s1")
+s1 ovs-ofctl -O openflow13 dump-flows s1
 ```
 
 ```zsh
@@ -339,11 +340,11 @@ After the previous check point, two flow entries have been added. They are the 5
 
 The respective flow entry is as follows:
 
-When a packet addressed to h3 is received from the 2nd port (s1-eth2), it is output from the 4th port (s1-eth4).
-When a packet address to bond0 of h1 is received from the 4th port (s1-eth4, that is, the counterpart interface of h3), it is output from the 2nd port (s1-eth2).
-You can tell that s1-eth2 is used for communication between h3 and h1.
+When a packet addressed to h3 is received from the 2nd port `s1-eth2`, it is output from the 4th port `s1-eth4`.
+When a packet address to bond0 of h1 is received from the 4th port (`s1-eth4`, that is, the counterpart interface of `h3`), it is output from the 2nd port `s1-eth2`.
+You can tell that `s1-eth2` is used for communication between `h3` and `h1`.
 
-As a matter of course, ping can be executed from host H4 to host h1 as well. As before, new flow entries are registered and s1-eth1 is used for communication between h4 and h1.
+As a matter of course, ping can be executed from host `h4` to host `h1` as well. As before, new flow entries are registered and `s1-eth1` is used for communication between `h4` and `h1`.
 
 Destination host | Port used
 --- | ---
@@ -387,7 +388,7 @@ Node: `s1`:
 py s1.cmd("ovs-ofctl -O openflow13 dump-flows s1")
 ```
 
-ping that had been stopped at host h3 resumes.
+ping that had been stopped at host `h3` resumes.
 
 Node: `h3`:
 ```zsh
