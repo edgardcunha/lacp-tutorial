@@ -595,7 +595,7 @@ class EventSlaveStateChanged(event.EventBase):
         self.enabled = enabled
 ```
 
-Other than when a port is enabled, the EventSlaveStateChanged event is also sent when a port is disabled. Processing when disabled is implemented in “Receive Processing of FlowRemoved Message”.
+Other than when a port is enabled, the `EventSlaveStateChanged` event is also sent when a port is disabled. Processing when disabled is implemented in “Receive Processing of FlowRemoved Message”.
 
 The `EventSlaveStateChanged` class includes the following information:
 
