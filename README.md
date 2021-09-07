@@ -7,6 +7,7 @@ Testing Link Aggregation Control Protocol with Mininet
    1. [Configuring an Experimental Environment](#Configuring-an-Experimental-Environment)
    2. [Setting Link Aggregation in Host h1](#Setting-Link-Aggregation-in-Host-h1)
    3. [Setting OpenFlow Version](#Setting-OpenFlow-Version)
+   4. [Checking the Link Aggregation Function](#Checking-the-Link-Aggregation-Function)
 3. [Implementing the Link Aggregation Function with Ryu](#Implementing-the-Link-Aggregation-Function-with-Ryu)
 4. [Conclusion](#Conclusion)
 6. [References](#References)
