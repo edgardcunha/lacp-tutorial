@@ -125,7 +125,7 @@ h1 ifconfig
 ```
 You can see that logical interface bond0 is the MASTER and physical interface `h1-eth0` and `h1-eth1` are the SLAVE. Also, you can see that all of the MAC addresses of `bond0`, `h1-eth0`, and `h1-eth1` are the same. Check the state of the bonding driver as well.
 ```zsh
-py h1.cmd("cat /proc/net/bonding/bond0")
+h1 cat /proc/net/bonding/bond0
 ```
 ```zsh
 Ethernet Channel Bonding Driver: v5.11.0-31-generic
