@@ -3,19 +3,31 @@ Testing Link Aggregation Control Protocol with Mininet
 
 ## Table of Contents
 1. [SETUP](#Setup)
-2. [Implementation](#Implementation)
+2. [](#Concept)
+3. [Implementation](#Implementation)
    1. [Configuring an Experimental Environment](#Configuring-an-Experimental-Environment)
    2. [Setting Link Aggregation in Host h1](#Setting-Link-Aggregation-in-Host-h1)
    3. [Setting OpenFlow Version](#Setting-OpenFlow-Version)
    4. [Checking the Link Aggregation Function](#Checking-the-Link-Aggregation-Function)
-3. [Implementing the Link Aggregation Function with Ryu](#Implementing-the-Link-Aggregation-Function-with-Ryu)
+4. [Implementing the Link Aggregation Function with Ryu](#Implementing-the-Link-Aggregation-Function-with-Ryu)
    1. [Creating a Logical Interface](#Creating-a-Logical-Interface)
    2. [Processing Accompanying Port Enable/Disable State Change](#Processing-Accompanying-Port-Enable-Disable-State-Change)
 5. [Conclusion](#Conclusion)
 6. [References](#References)
 
-## SETUP
+## Setup
 VM: Ubuntu 21.04, 1024 MB de RAM, 1 CPU, Python 3.9.5
+
+## Concept
+Link aggregation is a technology defined in IEEE802.1AX-2008, which combines multiple physical lines to be used as a logical link. With the link aggregation function, it is possible to increase communication speed between specific network devices. At the same time, by securing redundancy, it is possible to improve fault tolerance.
+
+![lacp-benefits](lacp-benefits.png)
+
+In order to use the link aggregation function, it is necessary to configure beforehand the respective network devices as to which interfaces are aggregated as one group.
+
+There are two methods used to start the link aggregation function, the static method, in which each each network device is instructed directly, and the dynamic method, in which the function is started dynamically using the protocol called Link Aggregation Control Protocol (LACP).
+
+When the dynamic method is adopted, counterpart interfaces of the network devices periodically exchange LACP data units to continuously check with each other that communication is available. When exchange of LACP data units is interrupted, the occurrence of a failure is assumed and the relevant network device becomes unavailable. As a result, sending or receiving of packets is only performed by the remaining interfaces. This method has the advantage that even when a relay device such as a media converter is installed between network devices, link down of the other side of the relay device can be detected. This chapter discusses the dynamic link aggregation function using LACP.
 
 ## Implementation
 
