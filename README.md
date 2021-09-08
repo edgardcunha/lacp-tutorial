@@ -347,7 +347,7 @@ As shown above, we were able to confirm use of different links depending on comm
 
 ### Improving Fault Tolerance
 
-Check improvement in fault tolerance as a result of link aggregation. The current state is that when `h2` and `h4` communicate with h1, `s1-eth2` is used and when `h3` communicates with `h1`, `s1-eth1` is used.
+Check improvement in fault tolerance as a result of link aggregation. The current state is that when `h2` and `h4` communicate with `h1`, `s1-eth2` is used and when `h3` communicates with `h1`, `s1-eth1` is used.
 
 Here, we separate `h1-eth0`, which is the counterpart interface of `s1-eth1`, from the link aggregation group.
 
