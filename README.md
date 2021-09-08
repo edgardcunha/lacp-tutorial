@@ -293,8 +293,8 @@ After the previous check point, two flow entries have been added. They are the 4
 
 The respective flow entry is as follows:
 
-When a packet address to `bond0` of `h1` is received from the 3rd port (`s1-eth3`, that is, the counterpart interface of `h2`), it is output from the first port (`s1-eth1`).
-When a packet addressed to `h2` is received from the 1st port (`s1-eth1`), it is output from the 3rd port (`s1-eth3`).
+* When a packet address to `bond0` of `h1` is received from the 3rd port (`s1-eth3`, that is, the counterpart interface of `h2`), it is output from the first port (`s1-eth1`).
+* When a packet addressed to `h2` is received from the 1st port (`s1-eth1`), it is output from the 3rd port (`s1-eth3`).
 You can tell that `s1-eth1` is used for communication between `h2` and `h1`.
 
 Next, execute ping from host `h3` to host `h1`. On node `h3`:
