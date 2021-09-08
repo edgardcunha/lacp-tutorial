@@ -331,8 +331,8 @@ After the previous check point, two flow entries have been added. They are the 5
 
 The respective flow entry is as follows:
 
-When a packet addressed to `h3` is received from the 2nd port `s1-eth2`, it is output from the 4th port `s1-eth4`.
-When a packet address to `bond0` of `h1` is received from the 4th port (`s1-eth4`, that is, the counterpart interface of `h3`), it is output from the 2nd port `s1-eth2`.
+* When a packet addressed to `h3` is received from the 2nd port `s1-eth2`, it is output from the 4th port `s1-eth4`.
+* When a packet address to `bond0` of `h1` is received from the 4th port (`s1-eth4`, that is, the counterpart interface of `h3`), it is output from the 2nd port `s1-eth2`.
 You can tell that `s1-eth2` is used for communication between `h3` and `h1`.
 
 As a matter of course, ping can be executed from host `h4` to host `h1` as well. As before, new flow entries are registered and `s1-eth1` is used for communication between `h4` and `h1`.
