@@ -3,7 +3,7 @@ Testing Link Aggregation Control Protocol with Mininet
 
 ## Table of Contents
 1. [SETUP](#Setup)
-2. [](#Concept)
+2. [Concept](#Concept)
 3. [Implementation](#Implementation)
    1. [Configuring an Experimental Environment](#Configuring-an-Experimental-Environment)
    2. [Setting Link Aggregation in Host h1](#Setting-Link-Aggregation-in-Host-h1)
@@ -38,6 +38,8 @@ Let’s configure a link aggregation between the OpenFlow switch and Linux host.
 For details on the environment setting and login method, etc. to use the VM images, refer to ” Switching Hub.”
 
 First of all, using Mininet, create the topology shown below.
+
+![lacp-topology](#lacp-topology.png)
 
 Create a script to call Mininet’s API and configure the necessary topology.
 
