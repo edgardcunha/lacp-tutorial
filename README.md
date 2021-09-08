@@ -40,7 +40,8 @@ For details on the environment setting and login method, etc. to use the VM imag
 First of all, using Mininet, create the topology shown below.
 
 <p align="center">
-    ![lacp-topology](lacp-topology.png)
+    <!-- ![lacp-topology](lacp-topology.png) -->
+    <img src="lacp-topology.png" alt="LACP Topology" />
 </p>
 
 Create a script to call Mininet’s API and configure the necessary topology.
