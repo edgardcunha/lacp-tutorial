@@ -39,7 +39,7 @@ For details on the environment setting and login method, etc. to use the VM imag
 
 First of all, using Mininet, create the topology shown below.
 
-![lacp-topology](#lacp-topology.png)
+![lacp-topology](lacp-topology.png)
 
 Create a script to call Mininet’s API and configure the necessary topology.
 
