@@ -124,7 +124,7 @@ Now, let’s check the state of each interface.
 ```zsh
 h1 ifconfig
 ```
-You can see that logical interface bond0 is the MASTER and physical interface `h1-eth0` and `h1-eth1` are the SLAVE. Also, you can see that all of the MAC addresses of `bond0`, `h1-eth0`, and `h1-eth1` are the same. Check the state of the bonding driver as well.
+You can see that logical interface `bond0` is the MASTER and physical interface `h1-eth0` and `h1-eth1` are the SLAVE. Also, you can see that all of the MAC addresses of `bond0`, `h1-eth0`, and `h1-eth1` are the same. Check the state of the bonding driver as well.
 ```zsh
 h1 cat /proc/net/bonding/bond0
 ```
@@ -293,7 +293,7 @@ After the previous check point, two flow entries have been added. They are the 4
 
 The respective flow entry is as follows:
 
-When a packet address to bond0 of `h1` is received from the 3rd port (`s1-eth3`, that is, the counterpart interface of `h2`), it is output from the first port (`s1-eth1`).
+When a packet address to `bond0` of `h1` is received from the 3rd port (`s1-eth3`, that is, the counterpart interface of `h2`), it is output from the first port (`s1-eth1`).
 When a packet addressed to `h2` is received from the 1st port (`s1-eth1`), it is output from the 3rd port (`s1-eth3`).
 You can tell that `s1-eth1` is used for communication between `h2` and `h1`.
 
@@ -331,8 +331,8 @@ After the previous check point, two flow entries have been added. They are the 5
 
 The respective flow entry is as follows:
 
-When a packet addressed to h3 is received from the 2nd port `s1-eth2`, it is output from the 4th port `s1-eth4`.
-When a packet address to bond0 of h1 is received from the 4th port (`s1-eth4`, that is, the counterpart interface of `h3`), it is output from the 2nd port `s1-eth2`.
+When a packet addressed to `h3` is received from the 2nd port `s1-eth2`, it is output from the 4th port `s1-eth4`.
+When a packet address to `bond0` of `h1` is received from the 4th port (`s1-eth4`, that is, the counterpart interface of `h3`), it is output from the 2nd port `s1-eth2`.
 You can tell that `s1-eth2` is used for communication between `h3` and `h1`.
 
 As a matter of course, ping can be executed from host `h4` to host `h1` as well. As before, new flow entries are registered and `s1-eth1` is used for communication between `h4` and `h1`.
