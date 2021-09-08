@@ -21,6 +21,29 @@ class SimpleSwitchLacp13(simple_switch_13.SimpleSwitch13):
         self._lacp = kwargs['lacplib']
         self._lacp.add(
             dpid=str_to_dpid('0000000000000001'), ports=[1, 2])
+    
+    def add(self, dpid, ports):
+        """add a setting of a bonding i/f.
+        'add' method takes the corresponding args in this order.
+        
+        ========= =====================================================
+        Attribute Description
+        ========= =====================================================
+        dpid      datapath id.
+
+        ports     a list of integer values that means the ports face
+                  with the slave i/fs.
+        ========= =====================================================
+        
+        if you want to use multi LAG, call 'add' method more than once.
+        """
+        assert isinstance(ports, list)
+        assert len(ports) >= 2
+        ifs = {}
+        for port in ports:
+            ifs[port] = {'enabled': False, 'timeout': 0}
+        bond = {dpid: ifs}
+        self._bonds.append(bond)
 
     def del_flow(self, datapath, match):
         ofproto = datapath.ofproto
