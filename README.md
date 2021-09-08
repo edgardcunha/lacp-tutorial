@@ -300,7 +300,7 @@ You can tell that `s1-eth1` is used for communication between `h2` and `h1`.
 Next, execute ping from host `h3` to host `h1`. On node `h3`:
 
 ```zsh
-h3 ping 10.0.0.1 -c4
+h3 ping 10.0.0.1
 ```
 
 ```zsh
@@ -370,7 +370,7 @@ If new communication arises, the new MAC address is learned and flow entries are
 
 New flow entries are registered related to communication between host `h3` and host `h1`. On node `s1`:
 ```zsh
-py s1.cmd("ovs-ofctl -O openflow13 dump-flows s1")
+s1 ovs-ofctl -O openflow13 dump-flows s1
 ```
 
 ping that had been stopped at host `h3` resumes. On node `h3`:
