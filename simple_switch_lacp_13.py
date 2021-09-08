@@ -19,8 +19,8 @@ class SimpleSwitchLacp13(simple_switch_13.SimpleSwitch13):
         super(SimpleSwitchLacp13, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
         self._lacp = kwargs['lacplib']
-        self._lacp.add(
-            dpid=str_to_dpid('0000000000000001'), ports=[1, 2])
+        self._lacp.add(dpid=str_to_dpid('0000000000000001'), ports=[1, 2])
+        self._lacp.add(dpid=str_to_dpid('0000000000000003'), ports=[4, 5])
     
     def add(self, dpid, ports):
         """add a setting of a bonding i/f.
