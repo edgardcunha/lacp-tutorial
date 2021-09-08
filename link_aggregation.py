@@ -14,12 +14,13 @@ if '__main__' == __name__:
 
     h1 = net.addHost('h1')
     h2 = net.addHost('h2', mac='00:00:00:00:00:22')
-    h3 = net.addHost('h3', mac='00:00:00:00:00:23')
+    h3 = net.addHost('h3')
     h4 = net.addHost('h4', mac='00:00:00:00:00:24')
 
     net.addLink(s1, h1)
     net.addLink(s1, h1)
     net.addLink(s1, h2)
+    net.addLink(s1, h3)
     net.addLink(s1, h3)
     net.addLink(s1, h4)
 
